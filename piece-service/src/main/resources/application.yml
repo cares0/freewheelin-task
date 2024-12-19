@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: piece-service
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        dialect: org.hibernate.dialect.H2Dialect
+        default_schema: piece_service
+    open-in-view: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:~/piece_service;INIT=CREATE SCHEMA IF NOT EXISTS piece_service
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
