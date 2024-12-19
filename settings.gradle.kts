@@ -8,6 +8,7 @@ pluginManagement {
         kotlin("plugin.allopen") version kotlinVersion
         kotlin("plugin.noarg") version kotlinVersion
         kotlin("kapt") version kotlinVersion
+        id("com.google.devtools.ksp") version "$kotlinVersion-1.0.20"
         id("org.springframework.boot") version "3.4.0"
         id("io.spring.dependency-management") version "1.1.6"
         id("org.asciidoctor.jvm.convert") version "3.3.2"

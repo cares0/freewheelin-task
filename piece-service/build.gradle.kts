@@ -6,6 +6,7 @@ plugins {
 	id("org.springframework.boot")
 	id("io.spring.dependency-management")
 	id("org.asciidoctor.jvm.convert")
+	id("com.google.devtools.ksp")
 }
 
 java {
@@ -17,8 +18,10 @@ java {
 val snippetsDir = file("build/generated-snippets").also { extra["snippetsDir"] = it }
 val asciidoctorExtensions: Configuration by configurations.creating
 val querydslVersion by project.properties
+val kdslVersion = "1.0.4"
 
 dependencies {
+	implementation(project(":common"))
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -29,6 +32,9 @@ dependencies {
 	implementation("com.querydsl:querydsl-sql:$querydslVersion")
 	kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
 
+	implementation("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")
+	ksp("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")
+	implementation("io.github.millij:poi-object-mapper:1.0.0")
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
