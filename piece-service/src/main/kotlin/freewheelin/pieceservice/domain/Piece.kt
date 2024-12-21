@@ -36,10 +36,11 @@ class Piece private constructor (
         validateProblemCountBeforeAdd(problems.size)
 
         this.pieceProblems.addAll(
-            problems.map { problem ->
+            problems.mapIndexed { index, problem ->
                 PieceProblem.of(
                     piece = this,
                     problem = problem,
+                    number = index + 1,
                 )
             }
         )

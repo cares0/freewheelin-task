@@ -3,6 +3,7 @@ package freewheelin.pieceservice.adapter.driving.web
 import com.ninjasquad.springmockk.MockkBean
 import freewheelin.common.mapper.MapperFactory
 import freewheelin.pieceservice.adapter.driving.web.dsl.CreatePieceApiSpec
+import freewheelin.pieceservice.adapter.driving.web.dsl.GetPieceWithProblemsApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.PublishPieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.request.CreatePieceRequest
 import freewheelin.pieceservice.application.dto.CreatePieceCommand
@@ -11,6 +12,7 @@ import freewheelin.pieceservice.application.port.inbound.PublishPieceUseCase
 import freewheelin.pieceservice.common.IntegrationTest
 import freewheelin.pieceservice.domain.Piece
 import freewheelin.pieceservice.domain.Problem
+import freewheelin.pieceservice.domain.ProblemType
 import io.github.cares0.restdocskdsl.dsl.*
 import io.mockk.every
 import jakarta.persistence.EntityManager
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.generate.RestDocumentationGenerator
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import java.nio.charset.StandardCharsets
 import java.util.UUID
@@ -123,6 +126,50 @@ class PieceControllerTest : IntegrationTest() {
                         this.responseTime means "응답 시간" typeOf DATETIME
                         this.code means "응답코드" typeOf STRING
                         this.data means "응답 데이터" typeOf NULL
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Nested
+    @DisplayName("학습지 문제 조회")
+    inner class 학습지_문제_조회 {
+
+        @Test
+        @DisplayName("정상적인 요청 시 학습지와 문제 정보를 응답한다.")
+        fun normalTest() {
+            val pieceId = stubbedPiece.id
+
+            mockMvc.get("/piece/problems", pieceId) {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/problems")
+                contentType = MediaType.APPLICATION_JSON
+                characterEncoding = StandardCharsets.UTF_8.name()
+                queryParam("pieceId", pieceId.toString())
+            }.andExpectAll {
+                status { isOk() }
+            }.andDo {
+                print()
+                document(GetPieceWithProblemsApiSpec("get-piece-with-problem-normal")) {
+                    queryParameters {
+                        this.pieceId means "조회할 학습지 ID" typeOf ARRAY
+                    }
+                    responseBody {
+                        this.responseTime means "응답 시간" typeOf DATETIME
+                        this.code means "응답코드" typeOf STRING
+                        this.data means "응답 데이터" of {
+                            this.pieceId means "학습지 ID" typeOf NUMBER
+                            this.pieceName means "학습지 이름" typeOf STRING
+                            this.problemCount means "학습지 문제 수" typeOf NUMBER
+                            this.pieceProblems means "학습지 문제" of {
+                                this.problemId means "문제 ID" typeOf NUMBER
+                                this.number means "문제 번호" typeOf NUMBER
+                                this.level means "문제 난이도" typeOf NUMBER
+                                this.type means "문제 유형" typeOf ENUM(ProblemType::class)
+                                this.contents means "문제 내용" typeOf STRING
+                            }
+                        }
                     }
                 }
             }

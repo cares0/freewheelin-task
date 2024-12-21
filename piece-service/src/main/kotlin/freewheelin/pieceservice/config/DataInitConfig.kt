@@ -42,12 +42,14 @@ class DataConfig(
         }
 
         problemData.drop(1).forEach { data ->
+            val unit = unitMap[data.unitCode]!!
             entityManager.persist(
                 Problem(
                     id = data.id,
-                    unit = unitMap[data.unitCode]!!,
+                    unit = unit,
                     level = data.level,
                     type = ProblemType.valueOf(data.type),
+                    contents = "${unit.name}에 대한 문제입니다",
                     answer = data.answer,
                 )
             )

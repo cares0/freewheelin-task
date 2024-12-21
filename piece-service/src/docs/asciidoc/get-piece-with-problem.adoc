@@ -1,0 +1,23 @@
+[[get-piece-with-problem]]
+== 학습지 문제 조회
+```
+Method: GET
+Path: /piece/problems
+```
+
+[[get-piece-with-problem-normal]]
+=== 1) 정상 흐름
+==== 요청 예시
+include::{snippets}/get-piece-with-problem-normal/http-request.adoc[]
+
+==== 요청 파라미터
+include::{snippets}/get-piece-with-problem-normal/query-parameters.adoc[]
+
+==== 응답 예시
+include::{snippets}/get-piece-with-problem-normal/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/get-piece-with-problem-normal/response-fields-data.adoc[]
+
+**pieceProblems 필드 설명**
+include::{snippets}/get-piece-with-problem-normal/response-fields-pieceProblems.adoc[]

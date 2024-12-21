@@ -14,6 +14,8 @@ class PieceProblem private constructor(
     @JoinColumn(name = "problem_id")
     val problem: Problem,
 
+    val number: Int,
+
 ) {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +27,12 @@ class PieceProblem private constructor(
         fun of(
             piece: Piece,
             problem: Problem,
+            number: Int,
         ): PieceProblem {
             return PieceProblem(
                 piece = piece,
                 problem = problem,
+                number = number,
             )
         }
 

@@ -10,9 +10,10 @@ API Docs
 
 [[problem]]
 = ◼︎ 문제
-include::get-problem.adoc[]
+include::get-piece-with-problem.adoc[]
 
 [[piece]]
 = ◼︎ 학습지
 include::create-piece.adoc[]
 include::publish-piece.adoc[]
+include::get-piece-with-problem.adoc[]

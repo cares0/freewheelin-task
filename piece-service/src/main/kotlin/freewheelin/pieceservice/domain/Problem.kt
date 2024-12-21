@@ -18,7 +18,7 @@ class Problem(
     @Enumerated(EnumType.STRING)
     val type: ProblemType,
 
-    val answer: String,
-) {
+    val contents: String,
 
-}
+    val answer: String,
+)
