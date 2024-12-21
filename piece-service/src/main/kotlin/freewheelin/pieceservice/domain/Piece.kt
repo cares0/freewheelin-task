@@ -47,6 +47,20 @@ class Piece private constructor (
         this.totalProblemCount += problems.size
     }
 
+    fun publishBatch(studentIds: Set<String>) {
+        val alreadyPublishedStudentIds = studentPieces.map { it.studentId.toString() }.toSet()
+        val newStudentIds = studentIds.subtract(alreadyPublishedStudentIds)
+
+        val newStudentPieces = newStudentIds.map { studentId ->
+            StudentPiece.of(
+                studentId = studentId,
+                piece = this
+            )
+        }
+
+        this.studentPieces.addAll(newStudentPieces)
+    }
+
 
     companion object {
         private const val MAXIMUM_PROBLEM_COUNT = 50

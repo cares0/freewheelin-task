@@ -22,6 +22,12 @@ enum class ExceptionContainer(
         code = 1001,
         httpStatus = BAD_REQUEST,
         message = "학습지 생성 시 문제 수가 초과된 경우입니다.",
+    ),
+
+    ENTITY_NOT_EXIST_EXCEPTION(
+        code = 1002,
+        httpStatus = BAD_REQUEST,
+        message = "요청 경로변수, 파라미터, 바디 내에 포함된 식별자 값으로 리소스를 조회할 수 없을 경우 발생합니다.",
     )
 
     ;

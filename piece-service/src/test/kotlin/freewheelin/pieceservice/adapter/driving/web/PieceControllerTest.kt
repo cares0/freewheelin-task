@@ -1,12 +1,24 @@
 package freewheelin.pieceservice.adapter.driving.web
 
+import com.ninjasquad.springmockk.MockkBean
+import freewheelin.common.mapper.MapperFactory
 import freewheelin.pieceservice.adapter.driving.web.dsl.CreatePieceApiSpec
+import freewheelin.pieceservice.adapter.driving.web.dsl.PublishPieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.request.CreatePieceRequest
+import freewheelin.pieceservice.application.dto.CreatePieceCommand
+import freewheelin.pieceservice.application.port.inbound.CreatePieceUseCase
+import freewheelin.pieceservice.application.port.inbound.PublishPieceUseCase
 import freewheelin.pieceservice.common.IntegrationTest
+import freewheelin.pieceservice.domain.Piece
+import freewheelin.pieceservice.domain.Problem
 import io.github.cares0.restdocskdsl.dsl.*
+import io.mockk.every
+import jakarta.persistence.EntityManager
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.generate.RestDocumentationGenerator
 import org.springframework.test.web.servlet.post
@@ -28,8 +40,8 @@ class PieceControllerTest : IntegrationTest() {
                 problemIdsToAdd = setOf(1000, 1001, 1002, 1003),
             )
 
-            mockMvc.post("/pieces") {
-                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/pieces")
+            mockMvc.post("/piece") {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece")
                 contentType = MediaType.APPLICATION_JSON
                 characterEncoding = StandardCharsets.UTF_8.name()
                 content = createJson(normalRequest)
@@ -61,8 +73,8 @@ class PieceControllerTest : IntegrationTest() {
                 problemIdsToAdd = (1..100).map { it + 1000L }.toSet(),
             )
 
-            mockMvc.post("/pieces") {
-                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/pieces")
+            mockMvc.post("/piece") {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece")
                 contentType = MediaType.APPLICATION_JSON
                 characterEncoding = StandardCharsets.UTF_8.name()
                 content = createJson(countExceedRequest)
@@ -79,6 +91,62 @@ class PieceControllerTest : IntegrationTest() {
                 }
             }
         }
+    }
+
+    @Nested
+    @DisplayName("학습지 출제")
+    inner class 학습지_출제 {
+
+        @Test
+        @DisplayName("정상적인 요청 시 생성된 학습지 ID를 응답한다.")
+        fun normalTest() {
+            val pieceId = stubbedPiece.id
+            val studentIds = (1..10).map { UUID.randomUUID().toString() }
+
+            mockMvc.post("/piece/{pieceId}", pieceId) {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/{pieceId}")
+                contentType = MediaType.APPLICATION_JSON
+                characterEncoding = StandardCharsets.UTF_8.name()
+                queryParam("studentIds", *studentIds.toTypedArray())
+            }.andExpectAll {
+                status { isOk() }
+            }.andDo {
+                print()
+                document(PublishPieceApiSpec("publish-piece-normal")) {
+                    pathVariables {
+                        this.pieceId means "출제할 학습지 ID"
+                    }
+                    queryParameters {
+                        this.studentIds means "출제 대상 학생 ID 리스트" typeOf ARRAY
+                    }
+                    responseBody {
+                        this.responseTime means "응답 시간" typeOf DATETIME
+                        this.code means "응답코드" typeOf STRING
+                        this.data means "응답 데이터" typeOf NULL
+                    }
+                }
+            }
+        }
+
+    }
+
+    val stubbedUserId = UUID.randomUUID().toString()
+    lateinit var stubbedPiece: Piece
+
+    @BeforeEach
+    fun initTestData(
+        @Autowired entityManager: EntityManager,
+    ) {
+        val problemsToAdd = entityManager
+            .createQuery("select p from Problem p ", Problem::class.java)
+            .setMaxResults(10)
+            .resultList
+
+        val piece = Piece.of("테스트 학습지", stubbedUserId)
+        piece.addProblems(problemsToAdd)
+        stubbedPiece = piece
+
+        entityManager.persist(piece)
     }
 
 }

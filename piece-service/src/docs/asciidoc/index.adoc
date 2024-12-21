@@ -15,3 +15,4 @@ include::get-problem.adoc[]
 [[piece]]
 = ◼︎ 학습지
 include::create-piece.adoc[]
+include::publish-piece.adoc[]

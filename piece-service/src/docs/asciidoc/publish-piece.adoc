@@ -1,0 +1,23 @@
+[[publish-piece]]
+== 학습지 출제
+```
+Method: POST
+Path: /pieces
+```
+
+[[publish-piece-normal]]
+=== 1) 정상 흐름
+==== 요청 예시
+include::{snippets}/publish-piece-normal/http-request.adoc[]
+
+==== 요청 경로변수
+include::{snippets}/publish-piece-normal/path-parameters.adoc[]
+
+==== 요청 파라미터
+include::{snippets}/publish-piece-normal/query-parameters.adoc[]
+
+==== 응답 예시
+include::{snippets}/publish-piece-normal/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/publish-piece-normal/response-fields.adoc[]

@@ -26,10 +26,10 @@ class ProblemControllerTest : IntegrationTest() {
                 requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/problems")
                 contentType = MediaType.APPLICATION_JSON
                 characterEncoding = StandardCharsets.UTF_8.name()
-                param("totalCount", "10")
-                param("unitCodeList", "uc1580", "uc1581")
-                param("level", "LOW")
-                param("problemType", "ALL")
+                queryParam("totalCount", "10")
+                queryParam("unitCodeList", "uc1580", "uc1581")
+                queryParam("level", "LOW")
+                queryParam("problemType", "ALL")
             }.andExpectAll {
                 status { isOk() }
             }.andDo {
