@@ -1,10 +1,9 @@
 [[get-problem]]
-== 관심 매물 체크 조회
+== 문제 조회
 ```
 Method: GET
-Path: /interest-properties/check
+Path: /problems
 ```
-지도에서 매물 목록을 조회할 경우 회원의 관심 매물으로 등록되어 있는지 확인하기 위한 API 입니다.
 
 [[get-problem-normal]]
 === 1) 정상 흐름
@@ -18,4 +17,7 @@ include::{snippets}/get-problem-normal/query-parameters.adoc[]
 include::{snippets}/get-problem-normal/http-response.adoc[]
 
 ==== 응답 필드
-include::{snippets}/get-problem-normal/response-fields-.adoc[]
+include::{snippets}/get-problem-normal/response-fields-data.adoc[]
+
+**problemList 필드 설명**
+include::{snippets}/get-problem-normal/response-fields-problemList.adoc[]

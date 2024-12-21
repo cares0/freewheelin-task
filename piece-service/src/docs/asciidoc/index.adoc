@@ -8,3 +8,6 @@ API Docs
 :sectlinks:
 :docinfo: shared-head
 
+[[problem]]
+= ◼︎ 문제
+include::get-problem.adoc[]

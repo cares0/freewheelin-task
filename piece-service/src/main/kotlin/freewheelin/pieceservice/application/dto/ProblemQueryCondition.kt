@@ -1,6 +1,6 @@
 package freewheelin.pieceservice.application.dto
 
-import freewheelin.pieceservice.domain.ProblemLevelCategory
+import freewheelin.pieceservice.application.service.ProblemLevelCategory
 import freewheelin.pieceservice.domain.ProblemType
 
 data class ProblemQueryCondition(

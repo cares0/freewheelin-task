@@ -1,8 +1,10 @@
 package freewheelin.pieceservice.adapter.driving.web
 
 import freewheelin.common.mapper.MapperFactory
+import freewheelin.common.response.ApiResponse
 import freewheelin.pieceservice.adapter.driving.web.request.GetProblemByConditionRequest
 import freewheelin.pieceservice.adapter.driving.web.response.GetProblemByConditionResponse
+import freewheelin.pieceservice.adapter.driving.web.response.ProblemResponseMapper
 import freewheelin.pieceservice.application.dto.ProblemQueryCondition
 import freewheelin.pieceservice.application.dto.ProblemQueryResult
 import freewheelin.pieceservice.application.port.inbound.GetProblemByConditionUseCase
@@ -21,16 +23,20 @@ class ProblemController(
     @GetMapping
     fun getProblemByCondition(
         @ModelAttribute request: GetProblemByConditionRequest,
-    ): List<GetProblemByConditionResponse> {
+    ): ApiResponse<GetProblemByConditionResponse> {
         val condition = mapperFactory
             .getMapper<GetProblemByConditionRequest, ProblemQueryCondition>()
             .map(request)
 
         val queryResult = getProblemByConditionUseCase.queryByCondition(condition)
 
-        return mapperFactory
-            .getMapper<ProblemQueryResult, GetProblemByConditionResponse>()
-            .mapList(queryResult)
+        return ApiResponse.ofSuccess(
+            GetProblemByConditionResponse(
+                problemList = mapperFactory
+                    .getMapper<ProblemQueryResult, GetProblemByConditionResponse.ProblemResponse>()
+                    .mapList(queryResult)
+            )
+        )
     }
 
 }

@@ -2,7 +2,7 @@ package freewheelin.pieceservice.adapter.driving.web.request
 
 import freewheelin.common.mapper.Mapper
 import freewheelin.common.supports.toOtherEnumOrNull
-import freewheelin.pieceservice.domain.ProblemLevelCategory
+import freewheelin.pieceservice.application.service.ProblemLevelCategory
 import freewheelin.pieceservice.domain.ProblemType
 import freewheelin.pieceservice.application.dto.ProblemQueryCondition
 import org.springframework.stereotype.Component

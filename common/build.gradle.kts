@@ -18,8 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0")
-    implementation("com.querydsl:querydsl-jpa:$querydslVersion")
-    implementation("com.querydsl:querydsl-sql:$querydslVersion")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:6.10.1")
     testImplementation(kotlin("test"))
 }
 

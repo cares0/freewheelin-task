@@ -28,9 +28,11 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0")
 
-	implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
-	implementation("com.querydsl:querydsl-sql:$querydslVersion")
-	kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
+//	implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
+//	implementation("com.querydsl:querydsl-sql:$querydslVersion")
+	implementation("io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion")
+	kapt("io.github.openfeign.querydsl:querydsl-apt:$querydslVersion:jpa")
+//	kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
 
 	implementation("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")
 	ksp("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")

@@ -3,7 +3,7 @@ package freewheelin.pieceservice.application.port.outbound
 import freewheelin.pieceservice.domain.ProblemType
 import freewheelin.pieceservice.application.dto.ProblemQueryResult
 
-interface ProblemQueryPort {
+interface ProblemConditionQueryPort {
 
     fun queryByUnitCodesAndTypeAndRangeWithLimit(
         unitCodes: List<String>,

@@ -5,16 +5,12 @@ import freewheelin.pieceservice.adapter.driving.web.request.GetProblemByConditio
 import freewheelin.pieceservice.adapter.driving.web.response.GetProblemByConditionResponse
 import freewheelin.pieceservice.common.IntegrationTest
 import io.github.cares0.restdocskdsl.dsl.*
-import org.hamcrest.Matchers
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.restdocs.generate.RestDocumentationGenerator
-import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
 import java.nio.charset.StandardCharsets
 
 class ProblemControllerTest : IntegrationTest() {
@@ -36,7 +32,6 @@ class ProblemControllerTest : IntegrationTest() {
                 param("problemType", "ALL")
             }.andExpectAll {
                 status { isOk() }
-                // match { jsonPath("$.*.id", Matchers.equalTo(1)) }
             }.andDo {
                 print()
                 document(GetProblemByConditionApiSpec("get-problem-normal")) {
@@ -47,16 +42,21 @@ class ProblemControllerTest : IntegrationTest() {
                         this.level means "총 문제수" typeOf ENUM(GetProblemByConditionRequest.Level::class)
                     }
                     responseBody {
-                        this.id means "문제 ID" typeOf NUMBER
-                        this.answer means "정답" typeOf STRING
-                        this.unitCode means "유형코드" typeOf STRING
-                        this.level means "난이도" typeOf NUMBER
-                        this.problemType means "문제유형" typeOf ENUM(GetProblemByConditionResponse.ProblemType::class)
+                        this.responseTime means "응답 시간" typeOf DATETIME
+                        this.code means "응답코드" typeOf STRING
+                        this.data means "응답 데이터" of {
+                            this.problemList means "문제 리스트" of {
+                                this.id means "문제 ID" typeOf NUMBER
+                                this.answer means "정답" typeOf STRING
+                                this.unitCode means "유형코드" typeOf STRING
+                                this.level means "난이도" typeOf NUMBER
+                                this.problemType means "문제유형" typeOf ENUM(GetProblemByConditionResponse.ProblemResponse.ProblemType::class)
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 
 }

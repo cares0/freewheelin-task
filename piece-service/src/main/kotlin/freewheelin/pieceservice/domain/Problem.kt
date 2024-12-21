@@ -21,7 +21,4 @@ class Problem(
     val answer: String,
 ) {
 
-    val levelCategory: ProblemLevelCategory
-        get() = ProblemLevelCategory.fromLevel(level)
-
 }
