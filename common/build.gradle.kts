@@ -17,6 +17,7 @@ val querydslVersion by project.properties
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0")
     implementation("io.github.openfeign.querydsl:querydsl-jpa:6.10.1")
     testImplementation(kotlin("test"))

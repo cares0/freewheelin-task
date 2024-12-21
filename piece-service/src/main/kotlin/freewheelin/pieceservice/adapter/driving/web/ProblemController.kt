@@ -1,10 +1,9 @@
 package freewheelin.pieceservice.adapter.driving.web
 
 import freewheelin.common.mapper.MapperFactory
-import freewheelin.common.response.ApiResponse
+import freewheelin.common.web.ApiResponse
 import freewheelin.pieceservice.adapter.driving.web.request.GetProblemByConditionRequest
 import freewheelin.pieceservice.adapter.driving.web.response.GetProblemByConditionResponse
-import freewheelin.pieceservice.adapter.driving.web.response.ProblemResponseMapper
 import freewheelin.pieceservice.application.dto.ProblemQueryCondition
 import freewheelin.pieceservice.application.dto.ProblemQueryResult
 import freewheelin.pieceservice.application.port.inbound.GetProblemByConditionUseCase

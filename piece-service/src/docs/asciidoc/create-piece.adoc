@@ -1,0 +1,29 @@
+[[create-piece]]
+== 학습지 생성
+```
+Method: POST
+Path: /pieces
+```
+
+[[create-piece-normal]]
+=== 1) 정상 흐름
+==== 요청 예시
+include::{snippets}/create-piece-normal/http-request.adoc[]
+
+==== 요청 필드
+include::{snippets}/create-piece-normal/request-fields.adoc[]
+
+==== 응답 예시
+include::{snippets}/create-piece-normal/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/create-piece-normal/response-fields.adoc[]
+
+[[create-piece-error]]
+=== 2) 예외 - 문제 수가 초과된 경우
+==== 요청 예시
+include::{snippets}/create-piece-error-problem-count-exceed/http-request.adoc[]
+
+==== 응답 예시
+include::{snippets}/create-piece-error-problem-count-exceed/http-response.adoc[]
+
