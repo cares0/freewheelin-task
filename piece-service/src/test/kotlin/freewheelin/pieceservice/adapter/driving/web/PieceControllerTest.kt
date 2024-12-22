@@ -1,20 +1,16 @@
 package freewheelin.pieceservice.adapter.driving.web
 
-import com.ninjasquad.springmockk.MockkBean
-import freewheelin.common.mapper.MapperFactory
 import freewheelin.pieceservice.adapter.driving.web.dsl.CreatePieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.GetPieceWithProblemsApiSpec
+import freewheelin.pieceservice.adapter.driving.web.dsl.GradePieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.PublishPieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.request.CreatePieceRequest
-import freewheelin.pieceservice.application.dto.CreatePieceCommand
-import freewheelin.pieceservice.application.port.inbound.CreatePieceUseCase
-import freewheelin.pieceservice.application.port.inbound.PublishPieceUseCase
+import freewheelin.pieceservice.adapter.driving.web.request.GradePieceRequest
 import freewheelin.pieceservice.common.IntegrationTest
 import freewheelin.pieceservice.domain.Piece
 import freewheelin.pieceservice.domain.Problem
 import freewheelin.pieceservice.domain.ProblemType
 import io.github.cares0.restdocskdsl.dsl.*
-import io.mockk.every
 import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -23,10 +19,18 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.generate.RestDocumentationGenerator
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
+import org.springframework.restdocs.operation.preprocess.Preprocessors
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
+import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import java.nio.charset.StandardCharsets
 import java.util.UUID
+import kotlin.random.Random
 
 class PieceControllerTest : IntegrationTest() {
 
@@ -142,7 +146,7 @@ class PieceControllerTest : IntegrationTest() {
         fun normalTest() {
             val pieceId = stubbedPiece.id
 
-            mockMvc.get("/piece/problems", pieceId) {
+            mockMvc.get("/piece/problems") {
                 requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/problems")
                 contentType = MediaType.APPLICATION_JSON
                 characterEncoding = StandardCharsets.UTF_8.name()
@@ -163,6 +167,7 @@ class PieceControllerTest : IntegrationTest() {
                             this.pieceName means "학습지 이름" typeOf STRING
                             this.problemCount means "학습지 문제 수" typeOf NUMBER
                             this.pieceProblems means "학습지 문제" of {
+                                this.pieceProblemId means "학습지 문제 ID" typeOf NUMBER
                                 this.problemId means "문제 ID" typeOf NUMBER
                                 this.number means "문제 번호" typeOf NUMBER
                                 this.level means "문제 난이도" typeOf NUMBER
@@ -177,7 +182,83 @@ class PieceControllerTest : IntegrationTest() {
 
     }
 
+
+    @Nested
+    @DisplayName("학습지 채점")
+    inner class 학습지_채점 {
+
+        @Test
+        @DisplayName("정상적인 요청 시 학습지와 문제 정보를 응답한다.")
+        fun normalTest() {
+            val pieceId = stubbedPiece.id
+
+            val normalRequest = GradePieceRequest(
+                studentId = stubbedStudentId,
+                problemIdAndAnswers = stubbedPiece.pieceProblems.map { pieceProblem ->
+                    GradePieceRequest.PieceProblemIdAndAnswer(
+                        pieceProblemId = pieceProblem.id,
+                        answer = if (Random.Default.nextInt(1, 3) % 2 == 0) pieceProblem.problem.answer
+                        else "fail"
+                    )
+                }
+            )
+
+            mockMvc.put("/piece/problems") {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/problems")
+                contentType = MediaType.APPLICATION_JSON
+                characterEncoding = StandardCharsets.UTF_8.name()
+                queryParam("pieceId", pieceId.toString())
+                content = createJson(normalRequest)
+            }.andExpectAll {
+                status { isOk() }
+            }.andDo {
+                print()
+                handle(
+                    /** REST Docs KDSL 오류로 인해 직접 작성 **/
+                    MockMvcRestDocumentation.document(
+                        "grade-piece-normal",
+                        Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
+                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
+                        queryParameters(
+                            parameterWithName("pieceId")
+                                .description("채점할 학습지 ID")
+                        ),
+                        requestFields(
+                            fieldWithPath("studentId")
+                                .type(JsonFieldType.STRING)
+                                .description("학생 ID"),
+                            subsectionWithPath("problemIdAndAnswers")
+                                .type(JsonFieldType.ARRAY)
+                                .description("문제 ID와 정답 리스트"),
+                        ),
+                        requestFields(
+                            beneathPath("problemIdAndAnswers").withSubsectionId("problemIdAndAnswer"),
+                            fieldWithPath("pieceProblemId")
+                                .type(JsonFieldType.NUMBER)
+                                .description("학습지 문제 ID"),
+                            fieldWithPath("answer")
+                                .type(JsonFieldType.STRING)
+                                .description("정답"),
+                        ),
+                        responseFields(
+                            beneathPath("data.[]").withSubsectionId("data"),
+                            fieldWithPath("pieceProblemId")
+                                .type(JsonFieldType.NUMBER)
+                                .description("학습지 문제 ID"),
+                            fieldWithPath("isSolved")
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("정답인지 여부"),
+                        )
+                    )
+                )
+
+            }
+        }
+
+    }
+
     val stubbedUserId = UUID.randomUUID().toString()
+    val stubbedStudentId = UUID.randomUUID().toString()
     lateinit var stubbedPiece: Piece
 
     @BeforeEach
@@ -191,6 +272,8 @@ class PieceControllerTest : IntegrationTest() {
 
         val piece = Piece.of("테스트 학습지", stubbedUserId)
         piece.addProblems(problemsToAdd)
+        piece.publishBatch(setOf(stubbedStudentId))
+
         stubbedPiece = piece
 
         entityManager.persist(piece)

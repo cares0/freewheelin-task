@@ -54,7 +54,7 @@ class DataConfig(
                 )
             )
         }
-
+        entityManager.flush()
         log.info("데이터 초기화 완료: UNIT ${unitData.size}건/PROBLEM: ${problemData.size}건")
     }
 

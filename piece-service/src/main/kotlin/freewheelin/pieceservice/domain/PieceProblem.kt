@@ -1,5 +1,6 @@
 package freewheelin.pieceservice.domain
 
+import freewheelin.common.supports.EntityBase
 import jakarta.persistence.*
 import jakarta.persistence.FetchType.*
 
@@ -16,11 +17,46 @@ class PieceProblem private constructor(
 
     val number: Int,
 
-) {
+) : EntityBase() {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "piece_problem_id", insertable = false, updatable = false)
     val id: Long = 0
+
+    private var solvedStudentIdJoined: String? = null
+    private var failedStudentIdJoined: String? = null
+
+    val solvedStudentIds: List<String>
+        get() = this.solvedStudentIdJoined?.split(", ") ?: emptyList()
+
+    val failedStudentIds: List<String>
+        get() = this.failedStudentIdJoined?.split(", ") ?: emptyList()
+
+    fun addSolvedStudent(studentId: String) {
+        removeFailedStudent(studentId)
+        this.solvedStudentIdJoined = solvedStudentIds.plus(studentId).joinToString(", ")
+    }
+
+    fun addFailedStudent(studentId: String) {
+        removeSolvedStudent(studentId)
+        this.failedStudentIdJoined = failedStudentIds.plus(studentId).joinToString(", ")
+    }
+
+    private fun removeSolvedStudent(studentId: String) {
+        val removedList = solvedStudentIds.filterNot { it == studentId }
+
+        if (removedList.isNotEmpty()) {
+            this.solvedStudentIdJoined = removedList.joinToString(", ")
+        }
+    }
+
+    private fun removeFailedStudent(studentId: String) {
+        val removedList = failedStudentIds.filterNot { it == studentId }
+
+        if (removedList.isNotEmpty()) {
+            this.failedStudentIdJoined = removedList.joinToString(", ")
+        }
+    }
 
     companion object {
 

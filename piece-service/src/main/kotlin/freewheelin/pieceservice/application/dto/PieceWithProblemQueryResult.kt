@@ -7,5 +7,5 @@ data class PieceWithProblemQueryResult(
     val id: Long,
     val name: String,
     val totalProblemCount: Int,
-    val problems: List<PieceProblemQueryResult>
+    val pieceProblems: List<PieceProblemQueryResult>
 )

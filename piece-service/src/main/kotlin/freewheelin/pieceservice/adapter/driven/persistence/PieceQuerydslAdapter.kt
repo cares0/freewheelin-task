@@ -49,7 +49,7 @@ class PieceQuerydslAdapter(
                                 problem.type,
                                 problem.answer,
                             )
-                        ).`as`("problems")
+                        ).`as`("pieceProblems")
                     )
                 )
             ).firstOrNull() ?: throw EntityNotExistException(Piece::class, pieceId.toString())

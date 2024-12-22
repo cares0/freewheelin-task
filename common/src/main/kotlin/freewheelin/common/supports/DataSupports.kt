@@ -2,7 +2,14 @@ package freewheelin.common.supports
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.dsl.BooleanExpression
+import jakarta.persistence.Column
+import jakarta.persistence.EntityListeners
+import jakarta.persistence.MappedSuperclass
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import org.springframework.data.repository.CrudRepository
+import java.time.LocalDateTime
 import kotlin.reflect.KClass
 
 fun nullSafeBuilder(booleanFunction: () -> BooleanExpression): BooleanBuilder {
@@ -22,3 +29,18 @@ class EntityNotExistException(
 ) : java.lang.IllegalArgumentException(
     "[$identifier] 식별자에 해당하는 [${entityClassToFind.simpleName}] 엔티티를 찾을 수 없습니다."
 )
+
+@EntityListeners(AuditingEntityListener::class)
+@MappedSuperclass
+abstract class EntityBase() {
+
+    @CreatedDate
+    @Column(updatable = false)
+    lateinit var createdAt: LocalDateTime
+
+    @LastModifiedDate
+    lateinit var lastModifiedAt: LocalDateTime
+
+    fun isInitialized() = this::createdAt.isInitialized
+
+}

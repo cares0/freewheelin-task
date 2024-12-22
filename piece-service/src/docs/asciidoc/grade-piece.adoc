@@ -1,0 +1,23 @@
+[[grade-piece]]
+== 학습지 채점
+```
+Method: PUT
+Path: /pieces/problems
+```
+
+[[grade-piece-normal]]
+=== 1) 정상 흐름
+==== 요청 예시
+include::{snippets}/grade-piece-normal/http-request.adoc[]
+
+==== 요청 파라미터
+include::{snippets}/grade-piece-normal/query-parameters.adoc[]
+
+==== 요청 필드
+include::{snippets}/grade-piece-normal/request-fields.adoc[]
+
+==== 응답 예시
+include::{snippets}/grade-piece-normal/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/grade-piece-normal/response-fields-data.adoc[]

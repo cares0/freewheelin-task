@@ -9,6 +9,7 @@ data class GetPieceWithProblemResponse(
     val pieceProblems: List<PieceProblemResponse>
 ) {
     data class PieceProblemResponse(
+        val pieceProblemId: Long,
         val problemId: Long,
         val number: Int,
         val level: Int,

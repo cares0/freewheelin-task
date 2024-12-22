@@ -15,13 +15,14 @@ class GetPieceWithProblemResponseMapper : Mapper<PieceWithProblemQueryResult, Ge
             pieceId = source.id,
             pieceName = source.name,
             problemCount = source.totalProblemCount,
-            pieceProblems = source.problems.map { problem ->
+            pieceProblems = source.pieceProblems.map { pieceProblem ->
                 GetPieceWithProblemResponse.PieceProblemResponse(
-                    problemId = problem.problemId,
-                    number = problem.number,
-                    level = problem.level,
-                    type = problem.type,
-                    contents = problem.contents,
+                    pieceProblemId = pieceProblem.id,
+                    problemId = pieceProblem.problemId,
+                    number = pieceProblem.number,
+                    level = pieceProblem.level,
+                    type = pieceProblem.type,
+                    contents = pieceProblem.contents,
                 )
             },
         )

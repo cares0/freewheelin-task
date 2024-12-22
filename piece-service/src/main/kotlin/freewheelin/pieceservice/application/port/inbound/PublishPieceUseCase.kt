@@ -4,6 +4,6 @@ import freewheelin.pieceservice.application.dto.PublishPieceCommand
 
 interface PublishPieceUseCase {
 
-    fun publish(command: PublishPieceCommand)
+    fun publish(pieceId: Long, command: PublishPieceCommand)
 
 }

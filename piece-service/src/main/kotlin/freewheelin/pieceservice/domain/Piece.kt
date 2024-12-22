@@ -1,5 +1,6 @@
 package freewheelin.pieceservice.domain
 
+import freewheelin.common.supports.EntityBase
 import jakarta.persistence.*
 import jakarta.persistence.CascadeType.*
 import java.util.*
@@ -12,7 +13,7 @@ class Piece private constructor (
     @Column(columnDefinition = "BINARY(16)")
     val makerId: UUID,
 
-) {
+) : EntityBase() {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "piece_id", insertable = false, updatable = false)
@@ -61,7 +62,6 @@ class Piece private constructor (
 
         this.studentPieces.addAll(newStudentPieces)
     }
-
 
     companion object {
         private const val MAXIMUM_PROBLEM_COUNT = 50
