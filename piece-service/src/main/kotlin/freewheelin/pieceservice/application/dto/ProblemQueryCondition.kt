@@ -1,7 +1,7 @@
 package freewheelin.pieceservice.application.dto
 
 import freewheelin.pieceservice.application.service.ProblemLevelCategory
-import freewheelin.pieceservice.domain.ProblemType
+import freewheelin.pieceservice.domain.model.ProblemType
 
 data class ProblemQueryCondition(
     val totalCount: Int,

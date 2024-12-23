@@ -1,6 +1,6 @@
 package freewheelin.pieceservice.adapter.driving.web.response
 
-import freewheelin.pieceservice.domain.ProblemType
+import freewheelin.pieceservice.domain.model.ProblemType
 
 data class GetPieceWithProblemResponse(
     val pieceId: Long,

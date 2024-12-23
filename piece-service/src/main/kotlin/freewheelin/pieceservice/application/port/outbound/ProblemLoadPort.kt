@@ -1,6 +1,6 @@
 package freewheelin.pieceservice.application.port.outbound
 
-import freewheelin.pieceservice.domain.Problem
+import freewheelin.pieceservice.domain.model.Problem
 
 interface ProblemLoadPort {
 

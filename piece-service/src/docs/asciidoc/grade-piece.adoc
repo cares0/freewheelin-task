@@ -2,7 +2,7 @@
 == 학습지 채점
 ```
 Method: PUT
-Path: /pieces/problems
+Path: /piece/problems
 ```
 
 [[grade-piece-normal]]

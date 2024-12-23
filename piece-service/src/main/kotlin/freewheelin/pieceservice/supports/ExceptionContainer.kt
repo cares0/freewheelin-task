@@ -28,7 +28,13 @@ enum class ExceptionContainer(
         code = 1002,
         httpStatus = BAD_REQUEST,
         message = "요청 경로변수, 파라미터, 바디 내에 포함된 식별자 값으로 리소스를 조회할 수 없을 경우 발생합니다.",
-    )
+    ),
+
+    NO_RESOURCE_FOUND_EXCEPTION(
+        code = 1003,
+        httpStatus = BAD_REQUEST,
+        message = "정적 리소스를 찾을 수 없을 경우 발생합니다.",
+    ),
 
     ;
 

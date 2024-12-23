@@ -7,15 +7,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import freewheelin.common.supports.EntityNotExistException
 import freewheelin.pieceservice.application.dto.PieceProblemQueryResult
 import freewheelin.pieceservice.application.dto.PieceWithProblemQueryResult
-import freewheelin.pieceservice.application.dto.ProblemQueryResult
 import freewheelin.pieceservice.application.port.outbound.PieceQueryPort
-import freewheelin.pieceservice.domain.Piece
-import freewheelin.pieceservice.domain.QPiece
-import freewheelin.pieceservice.domain.QPiece.*
-import freewheelin.pieceservice.domain.QPieceProblem
-import freewheelin.pieceservice.domain.QPieceProblem.*
-import freewheelin.pieceservice.domain.QProblem
-import freewheelin.pieceservice.domain.QProblem.*
+import freewheelin.pieceservice.domain.model.Piece
+import freewheelin.pieceservice.domain.model.QPiece.*
+import freewheelin.pieceservice.domain.model.QPieceProblem.*
+import freewheelin.pieceservice.domain.model.QProblem.*
 import org.springframework.stereotype.Repository
 
 @Repository

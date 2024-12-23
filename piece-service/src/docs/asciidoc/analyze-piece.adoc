@@ -1,0 +1,26 @@
+[[analyze-piece]]
+== 학습지 통계 분석
+```
+Method: GET
+Path: /piece/problems
+```
+
+[[analyze-piece-normal]]
+=== 1) 정상 흐름
+==== 요청 예시
+include::{snippets}/analyze-piece-normal/http-request.adoc[]
+
+==== 요청 파라미터
+include::{snippets}/analyze-piece-normal/query-parameters.adoc[]
+
+==== 응답 예시
+include::{snippets}/analyze-piece-normal/http-response.adoc[]
+
+==== 응답 필드
+include::{snippets}/analyze-piece-normal/response-fields-data.adoc[]
+
+**studentStats 필드 설명**
+include::{snippets}/analyze-piece-normal/response-fields-studentStats.adoc[]
+
+**problemStats 필드 설명**
+include::{snippets}/analyze-piece-normal/response-fields-problemStats.adoc[]

@@ -1,4 +1,4 @@
-package freewheelin.pieceservice.domain
+package freewheelin.pieceservice.domain.model
 
 import jakarta.persistence.*
 import jakarta.persistence.FetchType.*

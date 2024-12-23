@@ -1,4 +1,4 @@
-package freewheelin.pieceservice.domain
+package freewheelin.pieceservice.domain.exception
 
 class PieceProblemCountExceedException(
     maximumCount: Int,

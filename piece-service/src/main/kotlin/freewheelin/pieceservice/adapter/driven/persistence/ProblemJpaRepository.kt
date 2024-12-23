@@ -1,6 +1,6 @@
 package freewheelin.pieceservice.adapter.driven.persistence
 
-import freewheelin.pieceservice.domain.Problem
+import freewheelin.pieceservice.domain.model.Problem
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

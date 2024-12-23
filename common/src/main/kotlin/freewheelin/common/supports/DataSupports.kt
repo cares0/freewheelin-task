@@ -29,18 +29,3 @@ class EntityNotExistException(
 ) : java.lang.IllegalArgumentException(
     "[$identifier] 식별자에 해당하는 [${entityClassToFind.simpleName}] 엔티티를 찾을 수 없습니다."
 )
-
-@EntityListeners(AuditingEntityListener::class)
-@MappedSuperclass
-abstract class EntityBase() {
-
-    @CreatedDate
-    @Column(updatable = false)
-    lateinit var createdAt: LocalDateTime
-
-    @LastModifiedDate
-    lateinit var lastModifiedAt: LocalDateTime
-
-    fun isInitialized() = this::createdAt.isInitialized
-
-}

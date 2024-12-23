@@ -1,5 +1,7 @@
 package freewheelin.pieceservice.application.dto
 
+import java.util.UUID
+
 data class PublishPieceCommand(
-    val studentIds: Set<String>
+    val studentIds: Set<UUID>
 )

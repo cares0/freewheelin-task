@@ -1,7 +1,7 @@
 package freewheelin.pieceservice.application.dto
 
 import freewheelin.common.annotation.DefaultConstructor
-import freewheelin.pieceservice.domain.ProblemType
+import freewheelin.pieceservice.domain.model.ProblemType
 
 @DefaultConstructor
 data class ProblemQueryResult(

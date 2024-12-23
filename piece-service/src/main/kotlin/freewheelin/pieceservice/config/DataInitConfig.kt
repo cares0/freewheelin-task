@@ -2,9 +2,9 @@ package freewheelin.pieceservice.config
 
 import freewheelin.common.annotation.DefaultConstructor
 import freewheelin.common.supports.logger
-import freewheelin.pieceservice.domain.Problem
-import freewheelin.pieceservice.domain.ProblemType
-import freewheelin.pieceservice.domain.Unit
+import freewheelin.pieceservice.domain.model.Problem
+import freewheelin.pieceservice.domain.model.ProblemType
+import freewheelin.pieceservice.domain.model.Unit
 import io.github.millij.poi.ss.model.annotations.Sheet
 import io.github.millij.poi.ss.model.annotations.SheetColumn
 import io.github.millij.poi.ss.reader.XlsxReader

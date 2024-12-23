@@ -1,6 +1,7 @@
-package freewheelin.pieceservice.domain
+package freewheelin.pieceservice.domain.model
 
-import freewheelin.common.supports.EntityBase
+import freewheelin.pieceservice.domain.exception.PieceProblemCountExceedException
+import freewheelin.pieceservice.supports.EntityBase
 import jakarta.persistence.*
 import jakarta.persistence.CascadeType.*
 import java.util.*
@@ -24,6 +25,8 @@ class Piece private constructor (
 
     @OneToMany(mappedBy = "piece", cascade = [PERSIST, REMOVE])
     val studentPieces: MutableList<StudentPiece> = mutableListOf()
+
+    var totalStudentCount: Int = 0
 
     var totalProblemCount: Int = 0
 
@@ -49,8 +52,8 @@ class Piece private constructor (
         this.totalProblemCount += problems.size
     }
 
-    fun publishBatch(studentIds: Set<String>) {
-        val alreadyPublishedStudentIds = studentPieces.map { it.studentId.toString() }.toSet()
+    fun publishBatch(studentIds: Set<UUID>): Set<UUID> {
+        val alreadyPublishedStudentIds = studentPieces.map { it.studentId }.toSet()
         val newStudentIds = studentIds.subtract(alreadyPublishedStudentIds)
 
         val newStudentPieces = newStudentIds.map { studentId ->
@@ -61,6 +64,9 @@ class Piece private constructor (
         }
 
         this.studentPieces.addAll(newStudentPieces)
+        this.totalStudentCount += newStudentPieces.size
+
+        return newStudentIds
     }
 
     companion object {

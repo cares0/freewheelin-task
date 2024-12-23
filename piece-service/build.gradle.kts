@@ -26,13 +26,11 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0")
 
-//	implementation("com.querydsl:querydsl-jpa:$querydslVersion:jakarta")
-//	implementation("com.querydsl:querydsl-sql:$querydslVersion")
+	implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.10.0")
 	implementation("io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion")
 	kapt("io.github.openfeign.querydsl:querydsl-apt:$querydslVersion:jpa")
-//	kapt("com.querydsl:querydsl-apt:$querydslVersion:jakarta")
+	implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.0")
 
 	implementation("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")
 	ksp("io.github.cares0:rest-docs-kdsl-ksp:$kdslVersion")
@@ -103,5 +101,10 @@ tasks.resolveMainClassName.configure {
 }
 
 tasks.bootJar {
+	dependsOn("buildDocument")
+	from("build/resources/main/static/docs")
+}
+
+tasks.jar {
 	dependsOn("buildDocument")
 }

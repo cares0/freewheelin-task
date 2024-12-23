@@ -1,6 +1,6 @@
 package freewheelin.pieceservice.application.port.outbound
 
-import freewheelin.pieceservice.domain.ProblemType
+import freewheelin.pieceservice.domain.model.ProblemType
 
 interface ProblemGroupQueryPort {
 

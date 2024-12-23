@@ -2,14 +2,13 @@ package freewheelin.pieceservice.adapter.driving.web
 
 import freewheelin.pieceservice.adapter.driving.web.dsl.CreatePieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.GetPieceWithProblemsApiSpec
-import freewheelin.pieceservice.adapter.driving.web.dsl.GradePieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.PublishPieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.request.CreatePieceRequest
 import freewheelin.pieceservice.adapter.driving.web.request.GradePieceRequest
 import freewheelin.pieceservice.common.IntegrationTest
-import freewheelin.pieceservice.domain.Piece
-import freewheelin.pieceservice.domain.Problem
-import freewheelin.pieceservice.domain.ProblemType
+import freewheelin.pieceservice.domain.model.*
+import freewheelin.pieceservice.restdocskdsl.GradePieceApiSpec
+import freewheelin.pieceservice.restdocskdsl.AnalyzePieceApiSpec
 import io.github.cares0.restdocskdsl.dsl.*
 import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.BeforeEach
@@ -19,12 +18,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.restdocs.generate.RestDocumentationGenerator
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
-import org.springframework.restdocs.operation.preprocess.Preprocessors
-import org.springframework.restdocs.payload.JsonFieldType
-import org.springframework.restdocs.payload.PayloadDocumentation.*
-import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
-import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
@@ -193,7 +186,7 @@ class PieceControllerTest : IntegrationTest() {
             val pieceId = stubbedPiece.id
 
             val normalRequest = GradePieceRequest(
-                studentId = stubbedStudentId,
+                studentId = stubbedStudentIds.random(),
                 problemIdAndAnswers = stubbedPiece.pieceProblems.map { pieceProblem ->
                     GradePieceRequest.PieceProblemIdAndAnswer(
                         pieceProblemId = pieceProblem.id,
@@ -213,52 +206,80 @@ class PieceControllerTest : IntegrationTest() {
                 status { isOk() }
             }.andDo {
                 print()
-                handle(
-                    /** REST Docs KDSL 오류로 인해 직접 작성 **/
-                    MockMvcRestDocumentation.document(
-                        "grade-piece-normal",
-                        Preprocessors.preprocessRequest(Preprocessors.prettyPrint()),
-                        Preprocessors.preprocessResponse(Preprocessors.prettyPrint()),
-                        queryParameters(
-                            parameterWithName("pieceId")
-                                .description("채점할 학습지 ID")
-                        ),
-                        requestFields(
-                            fieldWithPath("studentId")
-                                .type(JsonFieldType.STRING)
-                                .description("학생 ID"),
-                            subsectionWithPath("problemIdAndAnswers")
-                                .type(JsonFieldType.ARRAY)
-                                .description("문제 ID와 정답 리스트"),
-                        ),
-                        requestFields(
-                            beneathPath("problemIdAndAnswers").withSubsectionId("problemIdAndAnswer"),
-                            fieldWithPath("pieceProblemId")
-                                .type(JsonFieldType.NUMBER)
-                                .description("학습지 문제 ID"),
-                            fieldWithPath("answer")
-                                .type(JsonFieldType.STRING)
-                                .description("정답"),
-                        ),
-                        responseFields(
-                            beneathPath("data.[]").withSubsectionId("data"),
-                            fieldWithPath("pieceProblemId")
-                                .type(JsonFieldType.NUMBER)
-                                .description("학습지 문제 ID"),
-                            fieldWithPath("isSolved")
-                                .type(JsonFieldType.BOOLEAN)
-                                .description("정답인지 여부"),
-                        )
-                    )
-                )
+                document(GradePieceApiSpec("grade-piece-normal")) {
+                    queryParameters {
+                        this.pieceId means "채점할 학습지 ID"
+                    }
+                    requestBody {
+                        this.studentId means "학생 ID" typeOf STRING
+                        this.problemIdAndAnswers means "문제 ID와 정답 리스트" of {
+                            this.pieceProblemId means "학습지 문제 ID" typeOf NUMBER
+                            this.answer means "정답" typeOf STRING
+                        }
+                    }
+                    responseBody {
+                        this.responseTime means "응답 시간" typeOf DATETIME
+                        this.code means "응답코드" typeOf STRING
+                        this.data means "응답 데이터" of {
+                            this.pieceProblemId means "학습지 문제 ID" typeOf NUMBER
+                            this.result means "채점 결과" typeOf ENUM(GradeResult::class)
+                        }
+                    }
+                }
+            }
+        }
 
+    }
+
+
+    @Nested
+    @DisplayName("학습지 통계 분석")
+    inner class 학습지_통계_분석 {
+
+        @Test
+        @DisplayName("정상적인 요청 시 학습지와 문제 정보를 응답한다.")
+        fun normalTest() {
+            val pieceId = stubbedPiece.id
+
+            mockMvc.get("/piece/analyze") {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/problems")
+                contentType = MediaType.APPLICATION_JSON
+                characterEncoding = StandardCharsets.UTF_8.name()
+                queryParam("pieceId", pieceId.toString())
+            }.andExpectAll {
+                status { isOk() }
+            }.andDo {
+                print()
+                document(AnalyzePieceApiSpec("analyze-piece-normal")) {
+                    queryParameters {
+                        this.pieceId means "채점할 학습지 ID"
+                    }
+                    responseBody {
+                        this.responseTime means "응답 시간" typeOf DATETIME
+                        this.code means "응답코드" typeOf STRING
+                        this.data means "응답 데이터" of {
+                            this.pieceId means "학습지 ID" typeOf NUMBER
+                            this.pieceName means "학습지 이름" typeOf STRING
+                            this.publishedStudentIds means "출제한 학생 ID 리스트" typeOf ARRAY
+                            this.studentStats means "학생 통계들" of {
+                                this.studentId means "학생 아이디"
+                                this.solvedPercentage means "정답률"
+                            }
+                            this.problemStats means "학생 통계" of {
+                                this.problemId means "문제 ID"
+                                this.number means "학습지의 문제 번호"
+                                this.solvedStudentPercentage means "맞춘 학생 퍼센티지"
+                            }
+                        }
+                    }
+                }
             }
         }
 
     }
 
     val stubbedUserId = UUID.randomUUID().toString()
-    val stubbedStudentId = UUID.randomUUID().toString()
+    val stubbedStudentIds = (1..10).map { UUID.randomUUID().toString() }.toSet()
     lateinit var stubbedPiece: Piece
 
     @BeforeEach
@@ -272,11 +293,25 @@ class PieceControllerTest : IntegrationTest() {
 
         val piece = Piece.of("테스트 학습지", stubbedUserId)
         piece.addProblems(problemsToAdd)
-        piece.publishBatch(setOf(stubbedStudentId))
-
-        stubbedPiece = piece
+        piece.publishBatch(stubbedStudentIds)
 
         entityManager.persist(piece)
+        entityManager.flush()
+
+        val pieceStat = PieceStat.of(piece)
+        piece.studentPieces.forEach {
+            pieceStat.applyGradeResult(
+                gradedStudentPiece = it,
+                pieceProblemToGradeResultMap = (0..9).toList()
+                    .shuffled().take(Random.Default.nextInt(0, 10))
+                    .associate { randomIndex ->
+                        piece.pieceProblems[randomIndex] to GradeResult.SOLVED
+                    }
+            )
+        }
+
+        stubbedPiece = piece
+        entityManager.persist(pieceStat)
     }
 
 }

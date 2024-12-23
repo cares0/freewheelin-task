@@ -13,7 +13,7 @@ class GradePieceResponseMapper : Mapper<PieceProblemIdAndResult, GradePieceRespo
     override fun map(source: PieceProblemIdAndResult): GradePieceResponse {
         return GradePieceResponse(
             pieceProblemId = source.pieceProblemId,
-            isSolved = source.isSolved,
+            result = source.result,
         )
     }
 }
