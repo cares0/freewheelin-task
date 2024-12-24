@@ -10,7 +10,7 @@ API Docs
 
 [[problem]]
 = ◼︎ 문제
-include::get-piece-with-problem.adoc[]
+include::get-problem.adoc[]
 
 [[piece]]
 = ◼︎ 학습지
