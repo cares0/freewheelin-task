@@ -1,17 +1,16 @@
 package freewheelin.pieceservice.application.service
 
-import freewheelin.pieceservice.application.dto.CreatePieceCommand
-import freewheelin.pieceservice.application.dto.GradePieceForStudentCommand
-import freewheelin.pieceservice.application.dto.PieceProblemIdAndResult
-import freewheelin.pieceservice.application.dto.PublishPieceCommand
+import freewheelin.pieceservice.application.dto.*
 import freewheelin.pieceservice.application.port.inbound.CreatePieceUseCase
-import freewheelin.pieceservice.application.port.inbound.GradePieceForStudentUseCase
+import freewheelin.pieceservice.application.port.inbound.GradePieceUseCase
 import freewheelin.pieceservice.application.port.inbound.PublishPieceUseCase
 import freewheelin.pieceservice.application.port.outbound.*
 import freewheelin.pieceservice.domain.event.PieceCreatedEvent
 import freewheelin.pieceservice.domain.event.PieceGradedEvent
 import freewheelin.pieceservice.domain.event.PiecePublishedEvent
+import freewheelin.pieceservice.domain.model.GradeResult
 import freewheelin.pieceservice.domain.model.Piece
+import freewheelin.pieceservice.domain.model.PieceProblem
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,7 +25,7 @@ class PieceService(
     private val pieceEventPublishPort: PieceEventPublishPort,
 ) : CreatePieceUseCase,
     PublishPieceUseCase,
-    GradePieceForStudentUseCase
+    GradePieceUseCase
 {
 
     override fun create(command: CreatePieceCommand): Long {
@@ -66,39 +65,53 @@ class PieceService(
         )
     }
 
-    override fun grade(
+    override fun gradeBatch(
         pieceId: Long,
-        command: GradePieceForStudentCommand
+        command: GradePieceBatchCommand
     ): List<PieceProblemIdAndResult> {
+        // 학생의 학습지를 조회합니다.
         val studentPiece = studentPieceLoadPort.loadByPieceIdAndStudentId(pieceId, command.studentId)
 
-        val submittedAnswerMap = command.problemIdAndAnswers.associate { it.pieceProblemId to it.answer }
+        // 채점해야 할 학습지의 문제들을 조회합니다.
+        val pieceProblemMap = getPieceProblemMap(command.problemIdAndAnswers)
 
-        val pieceProblemsToGrade = pieceProblemLoadPort.loadBatchWithProblemById(submittedAnswerMap.keys)
+        // 제출한 답안을 학습지 문제와 연관짓습니다.
+        val submittedAnswerPerPieceProblem = associateProblemToAnswer(pieceProblemMap, command.problemIdAndAnswers)
 
-        val gradeResultMap = pieceProblemsToGrade.associate { pieceProblem ->
-            val submittedAnswer = submittedAnswerMap[pieceProblem.id]!!
+        // 학습지 문제를 채점합니다.
+        val gradeResultPerPieceProblem = studentPiece.gradeBatch(submittedAnswerPerPieceProblem)
 
-            val gradeResult = studentPiece.grade(pieceProblem, submittedAnswer)
-
-            pieceProblem.id to gradeResult
-        }
-
-        val results = gradeResultMap.map {
-            PieceProblemIdAndResult(
-                pieceProblemId = it.key,
-                result = it.value
-            )
-        }
+        // 채점 결과를 학습지 문제 ID와 연관짓습니다.
+        val gradeResultPerPieceProblemId = convertResultPerPieceProblemId(gradeResultPerPieceProblem)
 
         pieceEventPublishPort.publish(
             PieceGradedEvent(
                 gradedStudentPieceId = studentPiece.id,
-                gradedPieceProblemIdAndResults = results,
+                gradedPieceProblemIdAndResults = gradeResultPerPieceProblemId,
             )
         )
 
-        return results
+        return gradeResultPerPieceProblemId
     }
+
+    private fun convertResultPerPieceProblemId(gradeResultPerPieceProblem: Map<PieceProblem, GradeResult>) =
+        gradeResultPerPieceProblem.map {
+            PieceProblemIdAndResult(
+                pieceProblemId = it.key.id,
+                result = it.value
+            )
+        }
+
+    private fun associateProblemToAnswer(
+        pieceProblemMap: Map<Long, PieceProblem>,
+        pieceProblemIdAndAnswers: List<PieceProblemIdAndAnswer>
+    ) = pieceProblemIdAndAnswers.associate {
+        pieceProblemMap[it.pieceProblemId]!! to it.answer
+    }
+
+    private fun getPieceProblemMap(pieceProblemIdAndAnswers: List<PieceProblemIdAndAnswer>) =
+        pieceProblemLoadPort
+            .loadBatchWithProblemById(pieceProblemIdAndAnswers.map { it.pieceProblemId }.toSet())
+            .associateBy { it.id }
 
 }

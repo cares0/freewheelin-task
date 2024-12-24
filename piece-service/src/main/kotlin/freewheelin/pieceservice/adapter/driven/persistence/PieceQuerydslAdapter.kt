@@ -25,7 +25,7 @@ class PieceQuerydslAdapter(
             .join(piece.pieceProblems, pieceProblem)
             .join(pieceProblem.problem, problem)
             .where(piece.id.eq(pieceId))
-            .orderBy(pieceProblem.number.desc())
+            .orderBy(pieceProblem.number.asc())
             .transform(
                 groupBy(piece.id).list(
                     Projections.fields(

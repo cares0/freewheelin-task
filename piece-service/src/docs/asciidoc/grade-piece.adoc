@@ -21,3 +21,11 @@ include::{snippets}/grade-piece-normal/http-response.adoc[]
 
 ==== 응답 필드
 include::{snippets}/grade-piece-normal/response-fields-data.adoc[]
+
+[[grade-piece-error-not-included]]
+=== 2) 예외 - 학습지에 포함되지 않은 문제를 채점하는 경우
+==== 요청 예시
+include::{snippets}/grade-piece-error-not-included/http-request.adoc[]
+
+==== 응답 예시
+include::{snippets}/grade-piece-error-not-included/http-response.adoc[]

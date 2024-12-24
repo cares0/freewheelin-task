@@ -14,70 +14,61 @@ class PieceStat(
 
     fun applyGradeResult(
         gradedStudentPiece: StudentPiece,
-        pieceProblemToGradeResultMap: Map<PieceProblem, GradeResult>,
+        gradeResultPerPieceProblem: Map<PieceProblem, GradeResult>,
     ) {
-        val targetStudentStat = resolveTargetStudentStat(gradedStudentPiece)
+        val targetStudentStat = resolveOrCreateStudentStat(gradedStudentPiece)
 
+        // ProblemStat 매핑 생성
         val problemStatMap = problemStats.associateBy { it.pieceProblemId }
 
-        pieceProblemToGradeResultMap.forEach { (pieceProblem, gradeResult) ->
+        // 각 문제에 대해 결과 반영
+        gradeResultPerPieceProblem.forEach { (pieceProblem, gradeResult) ->
+            // 학생 통계에 결과 반영
             targetStudentStat.applyResult(pieceProblem.id, gradeResult)
 
-            val targetProblemStat = resolveTargetProblemStatFromMap(problemStatMap, pieceProblem)
-
+            // 문제 통계들에 결과 적용
+            val targetProblemStat = resolveFromMapOrCreateProblemStat(problemStatMap, pieceProblem)
             targetProblemStat.applyResult(
                 studentId = gradedStudentPiece.studentId.toString(),
                 gradeResult = gradeResult
             )
 
+            // 문제 통계 갱신
             targetProblemStat.refreshSolvedStudentRate(piece.totalStudentCount)
         }
 
+        // 학생 통계 갱신
         targetStudentStat.refreshSolvedProblemRate(piece.totalProblemCount)
     }
 
-    private fun resolveTargetStudentStat(gradedStudentPiece: StudentPiece): StudentPieceStat {
-        var studentPieceStat = studentStats.firstOrNull { it.studentPieceId == gradedStudentPiece.id }
-        if (studentPieceStat == null) {
-            val newStat = StudentPieceStat(
-                studentPieceId = gradedStudentPiece.id,
-                studentId = gradedStudentPiece.studentId,
-            )
-            this.studentStats.add(newStat)
-            studentPieceStat = newStat
-        }
-        return studentPieceStat
+    private fun resolveOrCreateStudentStat(gradedStudentPiece: StudentPiece): StudentPieceStat {
+        return studentStats.firstOrNull { it.studentPieceId == gradedStudentPiece.id }
+            ?: createAndAddStudentStat(gradedStudentPiece)
     }
 
-    private fun resolveTargetProblemStatFromMap(
+    private fun createAndAddStudentStat(gradedStudentPiece: StudentPiece): StudentPieceStat {
+        return StudentPieceStat(
+            studentPieceId = gradedStudentPiece.id,
+            studentId = gradedStudentPiece.studentId
+        ).also { studentStats.add(it) }
+    }
+
+    private fun resolveFromMapOrCreateProblemStat(
         problemStatMap: Map<Long, PieceProblemStat>,
         pieceProblem: PieceProblem
     ): PieceProblemStat {
-        var pieceProblemStat = problemStatMap[pieceProblem.id]
-        if (pieceProblemStat == null) {
-            val newStat = PieceProblemStat(
-                pieceProblemId = pieceProblem.id,
-                problemId = pieceProblem.problem.id,
-                number = pieceProblem.number,
-            )
-            this.problemStats.add(newStat)
-            pieceProblemStat = newStat
-        }
-        return pieceProblemStat
+        return problemStatMap[pieceProblem.id] ?: createAndAddProblemStat(pieceProblem)
     }
 
-    fun initStudentStats(
-        studentPiece: List<StudentPiece>
-    ) {
-        this.studentStats.addAll(
-            studentPiece.map {
-                StudentPieceStat(
-                    studentPieceId = it.id,
-                    studentId = it.studentId,
-                )
-            }
-        )
+    private fun createAndAddProblemStat(pieceProblem: PieceProblem): PieceProblemStat {
+        return PieceProblemStat(
+            pieceProblemId = pieceProblem.id,
+            problemId = pieceProblem.problem.id,
+            number = pieceProblem.number
+        ).also { problemStats.add(it) }
     }
+
+    fun initStudentStats(studentPieces: List<StudentPiece>) = studentPieces.forEach(::createAndAddStudentStat)
 
     companion object {
 

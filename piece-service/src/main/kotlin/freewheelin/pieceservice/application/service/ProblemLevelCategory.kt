@@ -44,11 +44,6 @@ enum class ProblemLevelCategory(
             )
         }
 
-        fun fromLevel(level: Int): ProblemLevelCategory {
-            return levelToCategoryMap[level]
-                ?: throw IllegalArgumentException("레벨에 해당하는 범위가 없습니다.")
-        }
-
         private fun makeRatioMap(
             lowLevelRatio: Double,
             middleLevelRatio: Double,

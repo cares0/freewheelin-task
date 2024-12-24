@@ -3,11 +3,14 @@ package freewheelin.pieceservice.application.service
 import freewheelin.pieceservice.application.dto.AnalyzePieceResult
 import freewheelin.pieceservice.application.dto.ApplyGradeResultToStatCommand
 import freewheelin.pieceservice.application.dto.InitStudentStatCommand
+import freewheelin.pieceservice.application.dto.PieceProblemIdAndResult
 import freewheelin.pieceservice.application.port.inbound.AnalyzePieceUseCase
 import freewheelin.pieceservice.application.port.inbound.CreatePieceStatUseCase
 import freewheelin.pieceservice.application.port.inbound.ApplyGradeResultToStatUseCase
 import freewheelin.pieceservice.application.port.inbound.InitStudentStatUseCase
 import freewheelin.pieceservice.application.port.outbound.*
+import freewheelin.pieceservice.domain.model.GradeResult
+import freewheelin.pieceservice.domain.model.PieceProblem
 import freewheelin.pieceservice.domain.model.PieceStat
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -52,21 +55,27 @@ class PieceStatService(
 
         val pieceStat = pieceStatLoadPort.loadByPieceIdWithPiece(gradedStudentPiece.piece.id)
 
-        val gradedPieceProblems = pieceProblemLoadPort.loadBatchWithProblemById(
-            pieceProblemIds = command.gradedPieceProblemIdAndResults.map { it.pieceProblemId }.toSet()
-        )
-
-        val pieceProblemIdToGradeResultMap = command.gradedPieceProblemIdAndResults
-            .associateBy { it.pieceProblemId }
+        val gradeResultPerPieceProblem = resolveGradeResultPerPieceProblem(command.gradedPieceProblemIdAndResults)
 
         pieceStat.applyGradeResult(
             gradedStudentPiece = gradedStudentPiece,
-            pieceProblemToGradeResultMap = gradedPieceProblems.associateWith { pieceProblem ->
-                pieceProblemIdToGradeResultMap[pieceProblem.id]!!.result
-            }
+            gradeResultPerPieceProblem = gradeResultPerPieceProblem
         )
 
         pieceStatSavePort.update(pieceStat)
+    }
+
+    private fun resolveGradeResultPerPieceProblem(
+        pieceProblemIdAndResults: List<PieceProblemIdAndResult>
+    ): Map<PieceProblem, GradeResult> {
+        val gradeResultPerPieceProblemId = pieceProblemIdAndResults
+            .associateBy { it.pieceProblemId }
+
+        val gradeResultPerPieceProblem = pieceProblemLoadPort.loadBatchWithProblemById(
+            pieceProblemIds = gradeResultPerPieceProblemId.keys
+        ).associateWith { gradeResultPerPieceProblemId[it.id]!!.result }
+
+        return gradeResultPerPieceProblem
     }
 
     override fun analyze(pieceId: Long): AnalyzePieceResult {

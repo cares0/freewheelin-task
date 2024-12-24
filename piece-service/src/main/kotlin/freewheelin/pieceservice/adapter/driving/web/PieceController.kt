@@ -21,7 +21,7 @@ class PieceController(
     private val publishPieceUseCase: PublishPieceUseCase,
     private val getPieceWithProblemUseCase: GetPieceWithProblemUseCase,
     private val analyzePieceUseCase: AnalyzePieceUseCase,
-    private val gradePieceForStudentUseCase: GradePieceForStudentUseCase,
+    private val gradePieceUseCase: GradePieceUseCase,
 ) {
 
     @PostMapping
@@ -66,9 +66,9 @@ class PieceController(
         @RequestParam pieceId: Long,
         @RequestBody request: GradePieceRequest,
     ): ApiResponse<List<GradePieceResponse>> {
-        val gradeResults = gradePieceForStudentUseCase.grade(
+        val gradeResults = gradePieceUseCase.gradeBatch(
             pieceId = pieceId,
-            command = mapperFactory.getMapper<GradePieceRequest, GradePieceForStudentCommand>()
+            command = mapperFactory.getMapper<GradePieceRequest, GradePieceBatchCommand>()
                 .map(request)
         )
 

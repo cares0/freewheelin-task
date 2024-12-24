@@ -1,5 +1,7 @@
 package freewheelin.pieceservice.adapter.driving.web
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import freewheelin.pieceservice.adapter.driven.persistence.PieceStatEntity
 import freewheelin.pieceservice.adapter.driving.web.dsl.CreatePieceApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.GetPieceWithProblemsApiSpec
 import freewheelin.pieceservice.adapter.driving.web.dsl.PublishPieceApiSpec
@@ -181,12 +183,12 @@ class PieceControllerTest : IntegrationTest() {
     inner class 학습지_채점 {
 
         @Test
-        @DisplayName("정상적인 요청 시 학습지와 문제 정보를 응답한다.")
+        @DisplayName("정상적인 요청 시 문제 ID와 채점 정보를 응답한다.")
         fun normalTest() {
             val pieceId = stubbedPiece.id
 
             val normalRequest = GradePieceRequest(
-                studentId = stubbedStudentIds.random(),
+                studentId = stubbedStudentIds.random().toString(),
                 problemIdAndAnswers = stubbedPiece.pieceProblems.map { pieceProblem ->
                     GradePieceRequest.PieceProblemIdAndAnswer(
                         pieceProblemId = pieceProblem.id,
@@ -229,6 +231,49 @@ class PieceControllerTest : IntegrationTest() {
             }
         }
 
+        @Test
+        @DisplayName("학습지에 속하지 않은 문제를 채점하려는 경우 예외가 발생한다.")
+        fun notIncludedPieceProblemTest() {
+            val pieceId = stubbedPiece.id
+
+            stubbedPiece.pieceProblems.last().id
+
+            val normalRequest = GradePieceRequest(
+                studentId = stubbedStudentIds.random().toString(),
+                problemIdAndAnswers = stubbedPiece2.pieceProblems.map { pieceProblem ->
+                    GradePieceRequest.PieceProblemIdAndAnswer(
+                        pieceProblemId = pieceProblem.id,
+                        answer = if (Random.Default.nextInt(1, 3) % 2 == 0) pieceProblem.problem.answer
+                        else "fail"
+                    )
+                }
+            )
+
+            mockMvc.put("/piece/problems") {
+                requestAttr(RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE, "/piece/problems")
+                contentType = MediaType.APPLICATION_JSON
+                characterEncoding = StandardCharsets.UTF_8.name()
+                queryParam("pieceId", pieceId.toString())
+                content = createJson(normalRequest)
+            }.andExpectAll {
+                status { isBadRequest() }
+            }.andDo {
+                print()
+                document(GradePieceApiSpec("grade-piece-error-not-included")) {
+                    queryParameters {
+                        this.pieceId means "채점할 학습지 ID"
+                    }
+                    requestBody {
+                        this.studentId means "학생 ID" typeOf STRING
+                        this.problemIdAndAnswers means "문제 ID와 정답 리스트" of {
+                            this.pieceProblemId means "학습지 문제 ID" typeOf NUMBER
+                            this.answer means "정답" typeOf STRING
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
 
@@ -237,7 +282,7 @@ class PieceControllerTest : IntegrationTest() {
     inner class 학습지_통계_분석 {
 
         @Test
-        @DisplayName("정상적인 요청 시 학습지와 문제 정보를 응답한다.")
+        @DisplayName("정상적인 요청 시 학습지 통계 정보를 응답한다.")
         fun normalTest() {
             val pieceId = stubbedPiece.id
 
@@ -279,39 +324,55 @@ class PieceControllerTest : IntegrationTest() {
     }
 
     val stubbedUserId = UUID.randomUUID().toString()
-    val stubbedStudentIds = (1..10).map { UUID.randomUUID().toString() }.toSet()
+    val stubbedStudentIds = (1..10).map { UUID.randomUUID() }.toSet()
     lateinit var stubbedPiece: Piece
+    lateinit var stubbedPiece2: Piece
 
     @BeforeEach
     fun initTestData(
         @Autowired entityManager: EntityManager,
+        @Autowired objectMapper: ObjectMapper,
     ) {
         val problemsToAdd = entityManager
             .createQuery("select p from Problem p ", Problem::class.java)
             .setMaxResults(10)
             .resultList
 
-        val piece = Piece.of("테스트 학습지", stubbedUserId)
-        piece.addProblems(problemsToAdd)
-        piece.publishBatch(stubbedStudentIds)
+        val stubbedPiece = Piece.of("테스트 학습지", stubbedUserId)
+        stubbedPiece.addProblems(problemsToAdd.take(5))
+        stubbedPiece.publishBatch(stubbedStudentIds)
 
-        entityManager.persist(piece)
+        entityManager.persist(stubbedPiece)
         entityManager.flush()
 
-        val pieceStat = PieceStat.of(piece)
-        piece.studentPieces.forEach {
+        val pieceStat = PieceStat.of(stubbedPiece)
+
+        stubbedPiece.studentPieces.forEach {
             pieceStat.applyGradeResult(
                 gradedStudentPiece = it,
-                pieceProblemToGradeResultMap = (0..9).toList()
-                    .shuffled().take(Random.Default.nextInt(0, 10))
+                gradeResultPerPieceProblem = (0..4).toList()
+                    .shuffled().take(Random.Default.nextInt(0, 4))
                     .associate { randomIndex ->
-                        piece.pieceProblems[randomIndex] to GradeResult.SOLVED
+                        stubbedPiece.pieceProblems[randomIndex] to GradeResult.SOLVED
                     }
             )
         }
 
-        stubbedPiece = piece
-        entityManager.persist(pieceStat)
+        val stubbedPiece2 = Piece.of("테스트 학습지 2", stubbedUserId)
+        stubbedPiece2.addProblems(problemsToAdd.takeLast(5))
+        entityManager.persist(stubbedPiece2)
+
+        this.stubbedPiece2 = stubbedPiece2
+        this.stubbedPiece = stubbedPiece
+
+        entityManager.persist(
+            PieceStatEntity(
+                piece = pieceStat.piece,
+                studentStatsContainer = objectMapper.writeValueAsBytes(pieceStat.studentStats),
+                problemStatsContainer = objectMapper.writeValueAsBytes(pieceStat.problemStats),
+            )
+        )
+
     }
 
 }

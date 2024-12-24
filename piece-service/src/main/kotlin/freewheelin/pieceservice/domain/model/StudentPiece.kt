@@ -23,14 +23,15 @@ class StudentPiece private constructor(
     @Column(name = "student_piece_id", insertable = false, updatable = false)
     val id: Long = 0
 
-    fun grade(
-        pieceProblem: PieceProblem,
-        submittedAnswer: String,
-    ): GradeResult {
-        validateProblemIsIncludedInPiece(pieceProblem)
+    fun gradeBatch(
+        submittedAnswerPerPieceProblem: Map<PieceProblem, String>,
+    ): Map<PieceProblem, GradeResult> {
+        return submittedAnswerPerPieceProblem.mapValues { (pieceProblem, answer) ->
+            validateProblemIsIncludedInPiece(pieceProblem)
 
-        return if (pieceProblem.problem.answer == submittedAnswer) GradeResult.SOLVED
-        else GradeResult.FAILED
+            if (pieceProblem.problem.answer == answer) GradeResult.SOLVED
+            else GradeResult.FAILED
+        }
     }
 
     private fun validateProblemIsIncludedInPiece(pieceProblem: PieceProblem) {

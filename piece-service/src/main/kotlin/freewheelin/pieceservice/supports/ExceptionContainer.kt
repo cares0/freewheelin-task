@@ -36,6 +36,12 @@ enum class ExceptionContainer(
         message = "정적 리소스를 찾을 수 없을 경우 발생합니다.",
     ),
 
+    CANNOT_GRADE_PIECE_EXCEPTION(
+        code = 1004,
+        httpStatus = BAD_REQUEST,
+        message = "채점할 수 없는 문제입니다.",
+    ),
+
     ;
 
     companion object {

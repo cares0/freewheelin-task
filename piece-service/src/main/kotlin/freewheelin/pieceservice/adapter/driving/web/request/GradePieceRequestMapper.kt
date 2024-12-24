@@ -1,19 +1,19 @@
 package freewheelin.pieceservice.adapter.driving.web.request
 
 import freewheelin.common.mapper.Mapper
-import freewheelin.pieceservice.application.dto.GradePieceForStudentCommand
+import freewheelin.pieceservice.application.dto.GradePieceBatchCommand
 import freewheelin.pieceservice.application.dto.PieceProblemIdAndAnswer
 import org.springframework.stereotype.Component
 import java.util.UUID
 import kotlin.reflect.KClass
 
 @Component
-class GradePieceRequestMapper : Mapper<GradePieceRequest, GradePieceForStudentCommand> {
+class GradePieceRequestMapper : Mapper<GradePieceRequest, GradePieceBatchCommand> {
     override val sourceType: KClass<GradePieceRequest> = GradePieceRequest::class
-    override val targetType: KClass<GradePieceForStudentCommand> = GradePieceForStudentCommand::class
+    override val targetType: KClass<GradePieceBatchCommand> = GradePieceBatchCommand::class
 
-    override fun map(source: GradePieceRequest): GradePieceForStudentCommand {
-        return GradePieceForStudentCommand(
+    override fun map(source: GradePieceRequest): GradePieceBatchCommand {
+        return GradePieceBatchCommand(
             studentId = UUID.fromString(source.studentId),
             problemIdAndAnswers = source.problemIdAndAnswers.map {
                 PieceProblemIdAndAnswer(
