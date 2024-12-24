@@ -32,7 +32,6 @@ class DataConfig(
 
         val unitMap = mutableMapOf<String, Unit>()
         unitData.drop(1).forEach { data ->
-            log.info(data.toString())
             val unit = Unit(
                 code = data.unitCode,
                 name = data.name,
