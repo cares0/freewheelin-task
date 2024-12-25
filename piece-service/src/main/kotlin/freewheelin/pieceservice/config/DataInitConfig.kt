@@ -30,8 +30,22 @@ class DataConfig(
         val unitData = reader.read(UnitCodeExcelData::class.java, resource.inputStream, 1)
         val problemData = reader.read(ProblemExcelData::class.java, resource.inputStream, 0)
 
+        val allUnits = entityManager
+            .createQuery("select u from Unit u", Unit::class.java)
+            .resultList
+            .map(Unit::code)
+
+        val allProblem = entityManager
+            .createQuery("select p from Problem p", Problem::class.java)
+            .resultList
+            .map(Problem::id)
+
         val unitMap = mutableMapOf<String, Unit>()
-        unitData.drop(1).forEach { data ->
+        val newUnitData = unitData
+            .drop(1)
+            .filterNot { allUnits.contains(it.unitCode) }
+
+        newUnitData.forEach { data ->
             val unit = Unit(
                 code = data.unitCode,
                 name = data.name,
@@ -41,7 +55,11 @@ class DataConfig(
             unitMap[unit.code] = unit
         }
 
-        problemData.drop(1).forEach { data ->
+        val newProblemData = problemData
+            .drop(1)
+            .filterNot { allProblem.contains(it.id) }
+        
+        newProblemData.forEach { data ->
             val unit = unitMap[data.unitCode]!!
             entityManager.persist(
                 Problem(
@@ -54,8 +72,8 @@ class DataConfig(
                 )
             )
         }
-        entityManager.flush()
-        log.info("데이터 초기화 완료: UNIT ${unitData.size}건/PROBLEM: ${problemData.size}건")
+
+        log.info("데이터 초기화 완료: UNIT ${newUnitData.size}건 / PROBLEM: ${newProblemData.size}건")
     }
 
 }
