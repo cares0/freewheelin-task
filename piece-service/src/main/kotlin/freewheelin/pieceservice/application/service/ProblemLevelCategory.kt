@@ -28,15 +28,15 @@ enum class ProblemLevelCategory(
 
     ;
 
-    fun getRatioMap() = categoryToRatioMap[this]!!
+    fun getRatioMap() = ratioPerCategory[this]!!
 
     companion object {
 
-        private val levelToCategoryMap = entries.flatMap { levelRange ->
+        private val categoryPerLevel = entries.flatMap { levelRange ->
             levelRange.levelRange.map { it to levelRange }
         }.toMap()
 
-        private val categoryToRatioMap = entries.associateWith { category ->
+        private val ratioPerCategory = entries.associateWith { category ->
             makeRatioMap(
                 lowLevelRatio = category.lowLevelRatio,
                 middleLevelRatio = category.middleLevelRatio,

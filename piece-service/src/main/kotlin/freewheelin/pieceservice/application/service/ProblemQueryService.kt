@@ -153,9 +153,9 @@ class ProblemQueryService(
     }
 
     private fun queryProblemsByAllocation(
-        categoryToAllocatedCountMap: MutableMap<ProblemLevelCategory, Int>,
+        allocatedCountPerCategory: MutableMap<ProblemLevelCategory, Int>,
         condition: ProblemQueryCondition
-    ) = categoryToAllocatedCountMap.flatMap { (category, allocatedCount) ->
+    ) = allocatedCountPerCategory.flatMap { (category, allocatedCount) ->
         problemConditionQueryPort.queryByUnitCodesAndTypeAndRangeWithLimit(
             unitCodes = condition.unitCodeList,
             problemType = condition.type,
